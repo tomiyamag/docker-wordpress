@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    volumes:
+      - ./db_data/mysql:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: project_name_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user_pass
+
+  wordpress:
+    image: wordpress:latest
+    volumes:
+      - ./dist:/var/www/html
+    working_dir: /var/www/html/wp
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: project_name_db
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: user_pass
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8888:80
+    environment:
+      PMA_HOST: db
+
+volumes:
+  db_data:
